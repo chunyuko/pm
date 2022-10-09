@@ -1,0 +1,112 @@
+import { getPages } from "@/core/utils";
+import api from "@/libs/api";
+
+const rights = {
+  state: {
+    result: {},
+    length: 0,
+  },
+
+  mutations: {
+    set_rights: (state, res) => {
+      let len = res.data.length,
+        pageSize = res.pageSize,
+        pageNo = res.pageNo;
+      state.result = { data: res.data, totalCount: len, totalPage: getPages(len, pageSize), pageNo, pageSize };
+    },
+    set_length: (state, val) => {
+      state.length = Object.keys(val).length;
+    },
+  },
+
+  actions: {
+    load_rights({ state, commit, getters, dispatch }, params) {
+      return api.rights
+        .list()
+        .then((res) => {
+          commit("set_rights", Object.assign(res, params));
+          return state.result;
+        })
+        .catch((err) => {
+          return Promise.reject(err);
+        });
+    },
+    reload_rights({ state, commit, getters, dispatch }, params) {
+      return dispatch("load_rights", params);
+    },
+    // 获取信息列表
+    list_rights({ state, commit, getters, dispatch }, params) {
+      let res = state.result.data
+        ? new Promise((resolve, reject) => {
+            return resolve(state.result);
+          })
+        : dispatch("load_rights", params);
+      return res.then((data) => {
+        return new Promise((resolve, reject) => {
+          setTimeout(function () {
+            return resolve(Object.assign(data, params));
+          }, 200);
+        }).then((res) => {
+          return Promise.resolve(res);
+        });
+      });
+    },
+    add_rights({ state, commit, getters, dispatch }, params) {
+      return api.rights
+        .add({ data: params })
+        .then((res) => {
+          commit("set_rights", Object.assign(res, { pageNo: params.pageNo, pageSize: params.pageSize }));
+          return res;
+        })
+        .catch((err) => {
+          return Promise.reject(err);
+        });
+    },
+    change_rights({ state, commit, getters, dispatch }, params) {
+      return api.rights
+        .change({ data: params })
+        .then((res) => {
+          commit("set_rights", Object.assign(res, { pageNo: params.pageNo, pageSize: params.pageSize }));
+          return res;
+        })
+        .catch((err) => {
+          return Promise.reject(err);
+        });
+    },
+    update_rights({ state, commit, getters, dispatch }, params) {
+      return api.rights
+        .edit({ data: params })
+        .then((res) => {
+          commit("set_rights", Object.assign(res, { pageNo: params.pageNo, pageSize: params.pageSize }));
+          return res;
+        })
+        .catch((err) => {
+          return Promise.reject(err);
+        });
+    },
+    del_rights({ state, commit, getters, dispatch }, params) {
+      return api.rights
+        .del({ data: params })
+        .then((res) => {
+          commit("set_rights", Object.assign(res, { pageNo: params.pageNo, pageSize: params.pageSize }));
+          return res;
+        })
+        .catch((err) => {
+          return Promise.reject(err);
+        });
+    },
+    del_multi_rights({ state, commit, getters, dispatch }, params) {
+      return api.rights
+        .del_multi({ data: params })
+        .then((res) => {
+          commit("set_rights", Object.assign(res, { pageNo: params.pageNo, pageSize: params.pageSize }));
+          return res;
+        })
+        .catch((err) => {
+          return Promise.reject(err);
+        });
+    },
+  },
+};
+
+export default rights;
